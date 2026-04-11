@@ -31,7 +31,7 @@ class TestVertex:
         assert v.prev == v
 
     @pytest.fixture
-    def sample_vertices(self):
+    def sample_vertices(self) -> tuple[Vertex, Vertex, Vertex]:
         """Fixture to create a sample vertex list."""
         v1 = Vertex(0, 0)
         v2 = Vertex(1, 0)
@@ -86,3 +86,43 @@ class TestVertex:
         v2.remove()
         assert v1.cw() == v3
         assert v3.ccw() == v1
+
+    def test_splice(self, sample_vertices):
+        """Test splice operation."""
+        v1, v2, v3 = sample_vertices
+        v4 = Vertex(2, 2)
+        v5 = Vertex(3, 3)
+
+        # Create a new list with v4 and v5
+        v4.insert(v5)
+
+        # Splice the new list after v1
+        v1.splice(v4)
+
+        assert v1.cw() == v5
+        assert v4.cw() == v2
+        assert v5.cw() == v4
+
+    def test_split(self, sample_vertices):
+        """Test split operation."""
+        v1, v2, v3 = sample_vertices
+        v4 = Vertex(0.5, 0.5)
+        v3.insert(v4)
+        # Split between v1 and v2
+        new_v = v1.split(v3)
+
+        assert new_v is not None
+        assert new_v.point() == v3.point()
+        assert v1.cw() == v3
+        assert new_v.cw().point() == v1.point()
+
+    def test_equality(self):
+        """Test equality comparison."""
+        v1 = Vertex(1, 2)
+        v2 = Vertex(1, 2)
+        v3 = Vertex(2, 3)
+        v4 = v1
+
+        assert v1 == v2
+        assert v1 != v3
+        assert v1 == v4

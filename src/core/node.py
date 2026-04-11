@@ -24,7 +24,7 @@ class Node:
         Returns:
             The inserted node, or self if insertion failed.
         """
-        if not node or node == self:
+        if not node or node is self:
             return self
 
         node.prev = self

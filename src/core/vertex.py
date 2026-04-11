@@ -67,18 +67,14 @@ class Vertex(Node, Point):
         """
 
         # Create duplicates
-        a = self
-        b = v
-
-        a_copy = Vertex(a.x, a.y)
-        b_copy = Vertex(b.x, b.y)
+        a_copy = Vertex.from_point(self.point())
+        b_copy = Vertex.from_point(v.point())
 
         # Insert copies
-        a.next.insert(a_copy)
-        b.next.insert(b_copy)
+        self.insert(a_copy)
+        v.ccw().insert(b_copy)
 
-        # Splice connections
-        a.splice(b)
-        a_copy.splice(b_copy)
+        # Splice
+        self.splice(b_copy)
 
-        return a_copy
+        return b_copy
