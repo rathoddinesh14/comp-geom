@@ -4,6 +4,7 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
+from typing import cast
 from src.core.polygon import Polygon
 from src.core.vertex import Vertex
 from src.core.rotation_enum import Rotation
@@ -69,3 +70,22 @@ class TestPolygon:
         assert poly._v == v3
         poly.advance(Rotation.CCW)
         assert poly._v == v1
+
+    def test_split(self):
+        """Test splitting the polygon."""
+        poly = Polygon()
+        v1 = poly.insert(Vertex(1, 2))
+        v2 = poly.insert(Vertex(3, 4))
+        v3 = poly.insert(Vertex(5, 6))
+        v4 = poly.insert(Vertex(7, 8))
+        v5 = poly.insert(Vertex(9, 10))
+        v6 = poly.insert(Vertex(11, 12))
+
+        new_poly = poly.split(v4)
+        assert new_poly is not None
+        assert poly._size == 4
+        assert new_poly._size == 4
+        assert poly._v is v1
+        assert new_poly._v is not v4
+        assert poly.neighbor(Rotation.CW) is v4
+        assert cast(Vertex, new_poly.neighbor(Rotation.CW)).point() == v1.point()

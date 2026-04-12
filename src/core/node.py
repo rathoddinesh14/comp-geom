@@ -39,7 +39,7 @@ class Node:
         Returns:
             The removed node (self).
         """
-        if self.next == self and self.prev == self:
+        if self.next is self and self.prev is self:
             return self
 
         self.prev.next = self.next

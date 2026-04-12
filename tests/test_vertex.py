@@ -99,9 +99,9 @@ class TestVertex:
         # Splice the new list after v1
         v1.splice(v4)
 
-        assert v1.cw() == v5
-        assert v4.cw() == v2
-        assert v5.cw() == v4
+        assert v1.cw() is v5
+        assert v4.cw() is v2
+        assert v5.cw() is v4
 
     def test_split(self, sample_vertices):
         """Test split operation."""
@@ -126,3 +126,20 @@ class TestVertex:
         assert v1 == v2
         assert v1 != v3
         assert v1 == v4
+
+    def test_duplicate_vertex(self):
+        """Test inserting/removing a duplicate vertex."""
+        v1 = Vertex(1, 2)
+        v2 = Vertex(1, 2)
+        v1.insert(v2)
+
+        assert v1.cw() is v2
+        assert v2.cw() is v1
+        assert v1.ccw() is v2
+        assert v2.ccw() is v1
+        assert v1 is not v2
+        assert v1.point() == v2.point()
+
+        v2.remove()
+        assert v1.cw() is v1
+        assert v1.ccw() is v1

@@ -1,4 +1,10 @@
+from typing import Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .edge import Edge
+
 import math
+
 from .point_enum import Point_Position
 
 class Point:
@@ -17,9 +23,15 @@ class Point:
 
     def __mul__(self, scalar: float) -> 'Point':
         return Point(self.x * scalar, self.y * scalar)
+    
+    def __neg__(self):
+        return Point(-self.x, -self.y)
 
     def __rmul__(self, scalar: float) -> 'Point':
         return self.__mul__(scalar)
+
+    def __truediv__(self, scalar: float) -> 'Point':
+        return Point(self.x / scalar, self.y / scalar)
 
     def __getitem__(self, index: int) -> float:
         if index == 0:
@@ -101,3 +113,17 @@ class Point:
             return Point_Position.DESTINATION
 
         return Point_Position.BETWEEN
+    
+    def classify_edge(self, edge: 'Edge') -> Point_Position:
+        return self.classify(edge.org, edge.dest)
+
+    def distance(self, edge: 'Edge') -> Optional[float]:
+        """Distance from point to edge."""
+        from .edge import Edge
+        ab = Edge(edge.org, edge.dest)
+        ab.flip().rot() # rotate 90 ccw
+        n = ab.dest - ab.org  # Normal to edge
+        n = n / n.length()  # Normalize
+        f = Edge(self, self + n)  # Line from point in direction of normal
+        _, t = f.intersect(edge)
+        return t

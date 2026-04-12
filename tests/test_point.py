@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import math
 import pytest
 from src.core.point import Point
+from src.core.edge import Edge
 from src.core.point_enum import Point_Position
 
 
@@ -57,6 +58,13 @@ class TestPoint:
         result = 2.5 * p
         assert result.x == 5.0
         assert result.y == 7.5
+
+    def test_truediv(self):
+        """Test scalar division."""
+        p = Point(5, 10)
+        result = p / 2
+        assert result.x == 2.5
+        assert result.y == 5.0
 
     def test_getitem(self):
         """Test indexing."""
@@ -206,3 +214,31 @@ class TestPoint:
         # Point very close to p1
         test_point = Point(3.999999, 0)
         assert test_point.classify(p0, p1) == Point_Position.BETWEEN
+
+    def test_distance(self):
+        """Test distance from point to edge."""
+        edge = Edge(Point(0, 0), Point(4, 0))
+
+        # Point above the edge
+        p = Point(2, 3)
+        d = p.distance(edge)
+        assert d is not None
+        assert math.isclose(d, -3.0)
+
+        # Point below the edge
+        p = Point(2, -3)
+        d = p.distance(edge)
+        assert d is not None
+        assert math.isclose(d, 3.0)
+
+        # Point on the edge
+        p = Point(2, 0)
+        d = p.distance(edge)
+        assert d is not None
+        assert math.isclose(d, 0.0)
+
+        # Point beyond the edge
+        p = Point(5, 0)
+        d = p.distance(edge)
+        assert d is not None
+        assert math.isclose(d, 0.0)
