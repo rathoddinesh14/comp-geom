@@ -26,6 +26,33 @@ class TestPolygon:
         assert poly._v == v
         assert poly._size == 1
 
+    def test_edge(self):
+        """Test edge retrieval."""
+        poly = Polygon()
+        assert poly.edge() is None
+
+        v1 = Vertex(1, 2)
+        poly = Polygon(v1)
+        edge = poly.edge()
+        assert edge is not None
+        assert edge.org == v1.point()
+        assert edge.dest == v1.point()  # Single vertex, edge is degenerate
+
+        v2 = Vertex(3, 4)
+        poly.insert(v2)
+        edge = poly.edge()
+        assert edge is not None
+        assert edge.org == v1.point()
+        assert edge.dest == v2.point()
+
+        v3 = Vertex(5, 6)
+        poly.insert(v3)
+        poly.advance(Rotation.CW)
+        edge = poly.edge()
+        assert edge is not None
+        assert edge.org == v3.point()
+        assert edge.dest == v2.point()
+
     def test_insert(self):
         """Test inserting vertices."""
         poly = Polygon()

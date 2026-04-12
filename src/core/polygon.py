@@ -1,7 +1,9 @@
-from typing import Optional, cast
+from typing import Optional, cast, TYPE_CHECKING
 
 from src.core.vertex import Vertex
 from src.core.point import Point
+if TYPE_CHECKING:
+    from src.core.edge import Edge
 from src.core.rotation_enum import Rotation
 
 class Polygon:
@@ -58,6 +60,15 @@ class Polygon:
             return None
         return self._v.neighbor(rotation)
 
+    def edge(self):
+        """Get edge from current vertex."""
+        from .edge import Edge  # Avoid circular import
+        if not self._v:
+            return None
+        a = self.point()
+        b = self.cw()
+        return Edge(a, b.point() if b else None)
+
     def advance(self, rotation: Rotation) -> Optional['Vertex']:
         """Move current vertex pointer."""
         if not self._v:
@@ -81,11 +92,11 @@ class Polygon:
         if not self._v:
             self._v = new_v
             self._size = 1
-            return new_v
+            return self._v
 
-        self._v.insert(new_v)
+        self._v = self._v.insert(new_v)
         self._size += 1
-        return new_v
+        return self._v
 
     def remove(self) -> None:
         """Remove current vertex."""
