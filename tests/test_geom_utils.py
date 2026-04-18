@@ -89,7 +89,6 @@ class TestGeomUtils:
 # ---------------------------------------------------------------------------
 from src.core.geom_utils import leastVertex
 
-
 def _build_polygon(*coords: tuple) -> Polygon:
     """Helper: build a Polygon from an iterable of (x, y) tuples."""
     xs, ys = coords[0]
@@ -97,7 +96,6 @@ def _build_polygon(*coords: tuple) -> Polygon:
     for x, y in coords[1:]:
         poly.insert(Vertex(x, y))
     return poly
-
 
 class TestLeastVertexDefaultOrdering:
     """2.1 — Unit tests for leastVertex with default (lexicographic) ordering."""
