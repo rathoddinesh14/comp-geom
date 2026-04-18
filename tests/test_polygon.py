@@ -42,15 +42,15 @@ class TestPolygon:
         poly.insert(v2)
         edge = poly.edge()
         assert edge is not None
-        assert edge.org == v1.point()
-        assert edge.dest == v2.point()
+        assert edge.org == v2.point()
+        assert edge.dest == v1.point()
 
         v3 = Vertex(5, 6)
         poly.insert(v3)
         poly.advance(Rotation.CW)
         edge = poly.edge()
         assert edge is not None
-        assert edge.org == v3.point()
+        assert edge.org == v1.point()
         assert edge.dest == v2.point()
 
     def test_insert(self):
@@ -61,7 +61,7 @@ class TestPolygon:
         assert poly._size == 1
 
         v2 = poly.insert(Vertex(3, 4))
-        assert poly._v == v1
+        assert poly._v == v2
         assert poly._size == 2
         assert v1.next == v2
         assert v2.prev == v1
@@ -73,10 +73,10 @@ class TestPolygon:
         v2 = poly.insert(Vertex(3, 4))
 
         poly.remove()
-        assert poly._v == v2
+        assert poly._v == v1
         assert poly._size == 1
-        assert v2.next == v2
-        assert v2.prev == v2
+        assert v1.next == v1
+        assert v1.prev == v1
 
         poly.remove()
         assert poly._v is None
@@ -89,14 +89,14 @@ class TestPolygon:
         v2 = poly.insert(Vertex(3, 4))
         v3 = poly.insert(Vertex(5, 6))
 
-        assert poly._v == v1
-        assert poly.neighbor(Rotation.CW) == v3
+        assert poly._v == v3
+        assert poly.neighbor(Rotation.CW) == v1
         assert poly.neighbor(Rotation.CCW) == v2
 
         poly.advance(Rotation.CW)
-        assert poly._v == v3
-        poly.advance(Rotation.CCW)
         assert poly._v == v1
+        poly.advance(Rotation.CCW)
+        assert poly._v == v3
 
     def test_split(self):
         """Test splitting the polygon."""
@@ -110,9 +110,9 @@ class TestPolygon:
 
         new_poly = poly.split(v4)
         assert new_poly is not None
-        assert poly._size == 4
-        assert new_poly._size == 4
-        assert poly._v is v1
+        assert poly._size == 3
+        assert new_poly._size == 5
+        assert poly._v is v6
         assert new_poly._v is not v4
         assert poly.neighbor(Rotation.CW) is v4
-        assert cast(Vertex, new_poly.neighbor(Rotation.CW)).point() == v1.point()
+        assert cast(Vertex, new_poly.neighbor(Rotation.CW)).point() == v6.point()
