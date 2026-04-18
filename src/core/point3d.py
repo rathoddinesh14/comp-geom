@@ -2,10 +2,11 @@ from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .edge import Edge
+    from .triangle3d import Triangle3D
 
 import math
 
-from .point_enum import Point_Position
+from .point_enum import Point_Position, Point3D_Position
 
 class Point3D:
     def __init__(self, x: float = 0.0, y: float = 0.0, z: float = 0.0) -> None:
@@ -83,3 +84,19 @@ class Point3D:
             self.z * other.x - self.x * other.z,
             self.x * other.y - self.y * other.x
         )
+    
+    def classify(self, tri: 'Triangle3D') -> Point3D_Position:
+        """Classifies the point with respect to a triangle."""
+        v = self - tri[0]
+        l = v.length()
+        if l < 1e-12:
+            return Point3D_Position.ON
+        
+        v = v / l
+        d = v.dot(tri.n())
+        if math.isclose(d, 0.0):
+            return Point3D_Position.ON
+        elif d > 0:
+            return Point3D_Position.POSITIVE
+        else:
+            return Point3D_Position.NEGATIVE

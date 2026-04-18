@@ -8,3 +8,8 @@ class Point_Position(Enum):
     BETWEEN = 4
     ORIGIN = 5
     DESTINATION = 6
+
+class Point3D_Position(Enum):
+    POSITIVE = 0
+    NEGATIVE = 1
+    ON = 2
