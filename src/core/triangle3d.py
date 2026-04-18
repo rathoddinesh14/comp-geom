@@ -5,7 +5,7 @@ from src.core.intersect_enum import Intersection_Type
 from src.core.point_enum import Point_Position
 from src.core.rotation_enum import Rotation
 from .point3d import Point3D
-from typing import TYPE_CHECKING, Tuple, cast
+from typing import Tuple, cast
 from .edge3d import Edge3D
 from .polygon import Polygon
 from .vertex import Vertex

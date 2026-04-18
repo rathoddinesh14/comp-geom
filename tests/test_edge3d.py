@@ -8,7 +8,7 @@ import math
 import pytest
 from src.core.point3d import Point3D
 from src.core.edge3d import Edge3D
-from typing import TYPE_CHECKING
+from src.core.triangle3d import Triangle3D
 
 from src.core.intersect_enum import Intersection_Type
 
@@ -37,16 +37,50 @@ class TestEdge3D:
         p_mid = e.point_at(0.5)
         assert p_mid == Point3D(1, 1, 0)
 
-    def test_intersect(self):
+    def test_intersect_t_1(self):
         """Test edge-triangle intersection."""
-        # if TYPE_CHECKING:
-        #     from src.core.triangle3d import Triangle3D
-        # This test will require a Triangle3D class and specific triangle setup
-        # For now, we will just check that the method returns the expected types
         e = Edge3D(Point3D(0, 0, 0), Point3D(1, 1, 1))
-        # tri = Triangle3D(Point3D(0, 0, 1), Point3D(1, 0, 1), Point3D(0, 1, 1))
-        # result = e.intersect(tri)
-        # assert isinstance(result, tuple)
-        # assert isinstance(result[0], Intersection_Type)
-        # assert isinstance(result[1], float)
+        tri = Triangle3D(Point3D(0, 0, 1), Point3D(1, 0, 1), Point3D(0, 1, 1))
+        result = e.intersect(tri)
+        assert isinstance(result, tuple)
+        assert isinstance(result[0], Intersection_Type)
+        assert isinstance(result[1], float)
+        assert result[0] == Intersection_Type.SKEW
+        assert math.isclose(result[1], 1.0, abs_tol=1e-6)
+
+    def test_intersect_t_2(self):
+        """Test edge-triangle intersection."""
+        e = Edge3D(Point3D(0, 0, 0), Point3D(1, 1, 0.5))
+        tri = Triangle3D(Point3D(0, 0, 1), Point3D(1, 0, 1), Point3D(0, 1, 1))
+        result = e.intersect(tri)
+        assert isinstance(result, tuple)
+        assert isinstance(result[0], Intersection_Type)
+        assert isinstance(result[1], float)
+        assert result[0] == Intersection_Type.SKEW
+        assert math.isclose(result[1], 2.0, abs_tol=1e-6)
+
+    def test_intersect_t_3(self):
+        """Test edge-triangle intersection."""
+        e = Edge3D(Point3D(0, 0, 0), Point3D(1, 1, 1))
+        tri = Triangle3D(Point3D(0, 0, -2), Point3D(1, 0, -2), Point3D(0, 1, -2))
+        result = e.intersect(tri)
+        assert isinstance(result, tuple)
+        assert isinstance(result[0], Intersection_Type)
+        assert isinstance(result[1], float)
+        assert result[0] == Intersection_Type.SKEW
+        assert math.isclose(result[1], -2, abs_tol=1e-6)
+
+    def test_intersect_parallel(self):
+        """Test edge parallel to triangle."""
+        e = Edge3D(Point3D(0, 0, 0), Point3D(1, 0, 0))
+        tri = Triangle3D(Point3D(0, 0, 1), Point3D(1, 0, 1), Point3D(0, 1, 1))
+        result = e.intersect(tri)
+        assert result[0] == Intersection_Type.PARALLEL
+
+    def test_intersect_collinear(self):
+        """Test edge collinear with triangle."""
+        e = Edge3D(Point3D(0, 0, 1), Point3D(1, 0, 1))
+        tri = Triangle3D(Point3D(0, 0, 1), Point3D(1, 0, 1), Point3D(0, 1, 1))
+        result = e.intersect(tri)
+        assert result[0] == Intersection_Type.COLLINEAR
 
