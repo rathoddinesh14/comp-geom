@@ -17,3 +17,22 @@ def orientation(p: Point, q: Point, r: Point) -> float:
     a = q - p
     b = r - p
     return a.x * b.y - a.y * b.x
+
+def polarCmp(a: Point, b: Point) -> int:
+    """Compare two points by their polar angle"""
+    pa = a.polar_angle()
+    pb = b.polar_angle()
+    if pa < pb:
+        return -1
+    elif pa > pb:
+        return 1
+    else:
+        # If polar angles are the same, compare by distance from the origin
+        da = a.length()
+        db = b.length()
+        if da < db:
+            return -1
+        elif da > db:
+            return 1
+        else:
+            return 0

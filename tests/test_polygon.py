@@ -166,6 +166,35 @@ class TestPolygon:
         result = polygon.pointInPolygon(point_outside)
         assert result == False
 
+    def test_star_polygonization(self):
+        """Test starting polygonization."""
+        v0 = Vertex(3.1, 0.8)
+        v1 = Vertex(1.7, 4.1)
+        v2 = Vertex(0.8, 3)
+        v3 = Vertex(4.3, 1.2)
+        v4 = Vertex(4.1, 3.5)
+        v5 = Vertex(3.2, 3.4)
+        v6 = Vertex(1.5, 3.2)
+
+        polygon = Polygon()
+        polygon.star_polygonize([v0, v1, v2, v3, v4, v5, v6])
+        assert polygon.size() == 7
+        assert polygon.point() == v0.point()
+        polygon.advance(Rotation.CCW)
+        assert polygon.point() == v3.point()
+        polygon.advance(Rotation.CCW)
+        assert polygon.point() == v4.point()
+        polygon.advance(Rotation.CCW)
+        assert polygon.point() == v5.point()
+        polygon.advance(Rotation.CCW)
+        assert polygon.point() == v6.point()
+        polygon.advance(Rotation.CCW)
+        assert polygon.point() == v1.point()
+        polygon.advance(Rotation.CCW)
+        assert polygon.point() == v2.point()
+        polygon.advance(Rotation.CCW)
+        assert polygon.point() == v0.point()
+
 # ---------------------------------------------------------------------------
 # Import leastVertex (added alongside the existing geom_utils functions)
 # ---------------------------------------------------------------------------
