@@ -24,7 +24,7 @@ class Node:
         Returns:
             The inserted node, or self if insertion failed.
         """
-        if not node or node == self:
+        if not node or node is self:
             return self
 
         node.prev = self
@@ -39,7 +39,7 @@ class Node:
         Returns:
             The removed node (self).
         """
-        if self.next == self and self.prev == self:
+        if self.next is self and self.prev is self:
             return self
 
         self.prev.next = self.next
