@@ -6,6 +6,7 @@ from .edge import Edge
 from .vertex import Vertex
 from .point import Point
 from .rotation_enum import Rotation
+from .edge_enum import Edge_Type
 from .geom_utils import polarCmp
 
 class Polygon:
@@ -251,6 +252,17 @@ class Polygon:
             self.supporting_line(p, Point_Position.RIGHT)
             self.split(cast(Vertex, l))
             self.insert(p)
+
+    def pointInPolygon(self, p: 'Point') -> Point_Position:
+        parity = 0
+        for i in range(self.size()):
+            match cast(Edge, self.edge()).edge_type(p):
+                case Edge_Type.TOUCHING:
+                    return Point_Position.BOUNDARY
+                case Edge_Type.CROSSING:
+                    parity = 1 - parity
+            self.advance(Rotation.CW)
+        return Point_Position.OUTSIDE if parity == 0 else Point_Position.INSIDE
 
     def plot(self, show_points: bool = True, show_labels: bool = False, title: str = "Polygon with Current Vertex Highlighted") -> None:
         """Plot polygon and highlight current vertex (_v)."""

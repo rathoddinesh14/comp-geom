@@ -2,7 +2,6 @@
 
 import sys
 import os
-from unittest import result
 
 import pytest
 
@@ -674,3 +673,14 @@ class TestInsertionHull:
 
         # 🔥 All points should be in hull
         assert poly.size() == 8
+
+class TestPointInPolygon:
+    def test_point_in_poly(self):
+        poly = Polygon(Vertex(0,0))
+        poly.insert(Point(0,2))
+        poly.insert(Point(2,2))
+        poly.insert(Point(2,0))
+
+        assert poly.pointInPolygon(Point(1,1)) == Point_Position.INSIDE
+        assert poly.pointInPolygon(Point(2,2)) == Point_Position.BOUNDARY
+        assert poly.pointInPolygon(Point(3,3)) == Point_Position.OUTSIDE

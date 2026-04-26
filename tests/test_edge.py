@@ -9,7 +9,7 @@ import pytest
 from src.core.point import Point
 from src.core.edge import Edge
 from src.core.intersect_enum import Intersection_Type
-
+from src.core.edge_enum import Edge_Type
 
 class TestEdge:
     """Test cases for Edge class."""
@@ -134,3 +134,37 @@ class TestEdge:
         cross_type, t = e_no_cross2.cross(e_no_cross)
         assert cross_type is Intersection_Type.SKEW_NO_CROSS
         assert t is None
+
+    def test_edge_type(self):
+        e1 = Edge(Point(0, 0), Point(2, 2))
+        res = e1.edge_type(Point(0, 1))
+        assert res == Edge_Type.CROSSING
+
+        res = e1.edge_type(Point(0,0))
+        assert res == Edge_Type.TOUCHING
+        res = e1.edge_type(Point(2,2))
+        assert res == Edge_Type.TOUCHING
+        res = e1.edge_type(Point(1,1))
+        assert res == Edge_Type.TOUCHING
+
+        res = e1.edge_type(Point(-1,-1))
+        assert res == Edge_Type.INESSENTIAL
+        res = e1.edge_type(Point(2.1,2.1))
+        assert res == Edge_Type.INESSENTIAL
+        
+        e1.flip()
+
+        res = e1.edge_type(Point(0, 1))
+        assert res == Edge_Type.CROSSING
+
+        res = e1.edge_type(Point(0,0))
+        assert res == Edge_Type.TOUCHING
+        res = e1.edge_type(Point(2,2))
+        assert res == Edge_Type.TOUCHING
+        res = e1.edge_type(Point(1,1))
+        assert res == Edge_Type.TOUCHING
+
+        res = e1.edge_type(Point(-1,-1))
+        assert res == Edge_Type.INESSENTIAL
+        res = e1.edge_type(Point(2.1,2.1))
+        assert res == Edge_Type.INESSENTIAL

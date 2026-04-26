@@ -4,6 +4,7 @@ from typing import Tuple, Optional, TYPE_CHECKING
 
 
 from src.core.intersect_enum import Intersection_Type
+from src.core.edge_enum import Edge_Type
 
 if TYPE_CHECKING:
     from .point import Point
@@ -116,3 +117,28 @@ class Edge:
                 return Intersection_Type.SKEW_NO_CROSS, None
             return Intersection_Type.SKEW_CROSS, s
         return cross_type, t
+    
+    def edge_type(self, p: 'Point') -> Edge_Type:
+        """
+        detects edge crossing
+        """
+        v = self.org
+        w = self.dest
+        c = p.classify_edge(self)
+        match c:
+            case Point_Position.LEFT:
+                #       \(w) 
+                #        \
+                #  (p)    \
+                #          \(v)
+                return Edge_Type.CROSSING if v.y < p.y and p.y <= w.y else Edge_Type.INESSENTIAL
+            case Point_Position.RIGHT:
+                #       \(v) 
+                #        \
+                #  (p)    \
+                #          \(w)
+                return Edge_Type.CROSSING if w.y < p.y and p.y <= v.y else Edge_Type.INESSENTIAL
+            case Point_Position.BETWEEN | Point_Position.ORIGIN | Point_Position.DESTINATION:
+                return Edge_Type.TOUCHING
+            case _:
+                return Edge_Type.INESSENTIAL
