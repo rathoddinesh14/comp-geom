@@ -74,5 +74,5 @@ class Triangle3D:
         
         poly = self.project(h, v)
         qp = Vertex(q[h], q[v])
-        ans = poly.pointInPolygon(qp)
+        ans = poly.pointInConvexPolygon(qp)
         return (Intersection_Type.SKEW_CROSS if ans else Intersection_Type.SKEW_NO_CROSS, t)

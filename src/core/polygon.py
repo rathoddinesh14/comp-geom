@@ -135,8 +135,8 @@ class Polygon:
 
         return new_polygon
     
-    def pointInPolygon(self, point: Point) -> bool:
-        """Determines if a point is inside a polygon."""
+    def pointInConvexPolygon(self, point: Point) -> bool:
+        """Determines if a point is inside a convex polygon."""
         if self.size() == 1:
             return self.point() == point
         if (self.size() == 2):
@@ -239,7 +239,7 @@ class Polygon:
 
         self.insert(s[0])
         for p in s[1:]:
-            if self.pointInPolygon(p):
+            if self.pointInConvexPolygon(p):
                 continue
             def closestToPolyCmp(p1: 'Point', p2: 'Point') -> int:
                 a = (p - p1).length()

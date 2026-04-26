@@ -162,11 +162,11 @@ class TestPolygon:
         """Test point in polygon with a trivial case."""
         point = Point(0.5, 0.5)
         polygon = Polygon(Vertex.from_point(point))
-        result = polygon.pointInPolygon(point)
+        result = polygon.pointInConvexPolygon(point)
         assert result == True
 
         point_outside = Point(1.5, 1.5)
-        result = polygon.pointInPolygon(point_outside)
+        result = polygon.pointInConvexPolygon(point_outside)
         assert result == False
 
     def test_point_in_polygon_edge(self):
@@ -177,11 +177,11 @@ class TestPolygon:
         polygon.insert(v2)
 
         point_on_edge = Point(0.5, 0)
-        result = polygon.pointInPolygon(point_on_edge)
+        result = polygon.pointInConvexPolygon(point_on_edge)
         assert result == True
 
         point_outside = Point(0.5, -0.5)
-        result = polygon.pointInPolygon(point_outside)
+        result = polygon.pointInConvexPolygon(point_outside)
         assert result == False
 
     def test_star_polygonization(self):
@@ -225,10 +225,10 @@ class TestPolygon:
         polygon.insert(v2)
 
         point_inside = Point(1, 1)
-        assert polygon.pointInPolygon(point_inside) == True
+        assert polygon.pointInConvexPolygon(point_inside) == True
 
         point_outside = Point(3, 3)
-        assert polygon.pointInPolygon(point_outside) == False
+        assert polygon.pointInConvexPolygon(point_outside) == False
 
 # ---------------------------------------------------------------------------
 # Import leastVertex (added alongside the existing geom_utils functions)
@@ -581,6 +581,16 @@ class TestSupportingLine:
         poly.supporting_line(Point(2, -1), Point_Position.RIGHT)
         assert poly.v() == Point(4, 0)  # Should be v2
 
+import math
+def generate_circle_points(n, r=10, cx=0, cy=0):
+    return [
+        Point(
+            cx + r * math.cos(2 * math.pi * i / n),
+            cy + r * math.sin(2 * math.pi * i / n),
+        )
+        for i in range(n)
+    ]
+
 class TestInsertionHull:
     """Unit tests for insertion hull functionality."""
 
@@ -633,7 +643,7 @@ class TestInsertionHull:
         p = points[1]            # (2,0)
 
         # mimic insertionHull logic (only first iteration)
-        assert not poly.pointInPolygon(p)
+        assert not poly.pointInConvexPolygon(p)
 
         poly.supporting_line(p, Point_Position.LEFT)  # LEFT (use your enum)
         l = poly.v()
@@ -654,3 +664,13 @@ class TestInsertionHull:
         # 🔥 backward (this should FAIL in your case)
         assert cast(Vertex, a).prev is b, f"a.prev broken: {cast(Vertex, a).prev}"
         assert cast(Vertex, b).prev is a, f"b.prev broken: {cast(Vertex, b).prev}"
+
+    def test_insertion_hull_circle_points(self):
+        poly = Polygon()
+
+        points = generate_circle_points(8)
+
+        poly.insertionHull(points)
+
+        # 🔥 All points should be in hull
+        assert poly.size() == 8
