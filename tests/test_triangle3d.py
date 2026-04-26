@@ -39,13 +39,13 @@ class TestTriangle3D:
         assert poly.size() == 3
         assert poly.v() == Point(0, 1)
         poly.advance(Rotation.CW)
-        assert poly.v() == Point(0, 0)
-        poly.advance(Rotation.CW)
         assert poly.v() == Point(1, 0)
+        poly.advance(Rotation.CW)
+        assert poly.v() == Point(0, 0)
 
     def test_line_triangle_intersect(self):
         """Test line-triangle intersection."""
-        tri = Triangle3D(Point3D(0, 0, 0), Point3D(1, 0, 0), Point3D(0, 1, 0))
+        tri = Triangle3D(Point3D(0, 0, 0), Point3D(0, 1, 0), Point3D(1, 0, 0))
         edge = Edge3D(Point3D(0.5, 0.5, -1), Point3D(0.5, 0.5, 1))
         intersect_type, t = tri.lineTriangleIntersect(edge)
         assert intersect_type == Intersection_Type.SKEW_CROSS

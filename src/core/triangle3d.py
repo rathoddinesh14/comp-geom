@@ -50,7 +50,7 @@ class Triangle3D:
         p.insert(Vertex(self[1][h], self[1][v]))
         c = Vertex(self[2][h], self[2][v])
         
-        if c.classify_edge(cast(Edge, p.edge())) == Point_Position.LEFT:
+        if c.classify_edge(cast(Edge, p.edge())) == Point_Position.RIGHT:
             p.advance(Rotation.CW)
         p.insert(c)
 

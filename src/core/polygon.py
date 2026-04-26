@@ -147,7 +147,7 @@ class Polygon:
         if ori_v:
             for _ in range(self.size()):
                 e = self.edge()
-                if e and point.classify_edge(e) == Point_Position.RIGHT:
+                if e and point.classify_edge(e) == Point_Position.LEFT:
                     self.set_v(ori_v)
                     return False
                 self.advance(Rotation.CW)
@@ -218,6 +218,39 @@ class Polygon:
             self.insert(v)
         
         self.set_v(start_v)
+
+    def supporting_line(self, s: 'Point', side: Point_Position):
+        """Find supporting line for point s on given side."""
+        if self.size() == 0:
+            return
+
+        rotation = Rotation.CW if side == Point_Position.LEFT else Rotation.CCW
+        a = self.v()
+        b = self.neighbor(rotation)
+        c = cast(Point, b).classify(s, cast(Point, a))
+        while (c == side or c == Point_Position.BEYOND or c == Point_Position.BETWEEN):
+            self.advance(rotation)
+            a = self.v()
+            b = self.neighbor(rotation)
+            c = cast(Point, b).classify(s, cast(Point, a))
+
+    def insertionHull(self, s: list['Point']):
+        """Compute insertion hull for a set of points."""
+
+        self.insert(s[0])
+        for p in s[1:]:
+            if self.pointInPolygon(p):
+                continue
+            def closestToPolyCmp(p1: 'Point', p2: 'Point') -> int:
+                a = (p - p1).length()
+                b = (p - p2).length()
+                return (a > b) - (a < b)
+            self.leastVertex(closestToPolyCmp)
+            self.supporting_line(p, Point_Position.LEFT)
+            l = self.v()
+            self.supporting_line(p, Point_Position.RIGHT)
+            self.split(cast(Vertex, l))
+            self.insert(p)
 
     def plot(self, show_points: bool = True, show_labels: bool = False, title: str = "Polygon with Current Vertex Highlighted") -> None:
         """Plot polygon and highlight current vertex (_v)."""

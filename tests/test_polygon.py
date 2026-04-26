@@ -2,6 +2,7 @@
 
 import sys
 import os
+from unittest import result
 
 import pytest
 
@@ -12,7 +13,7 @@ from typing import cast
 from src.core.polygon import Polygon
 from src.core.vertex import Vertex
 from src.core.rotation_enum import Rotation
-
+from src.core.point_enum import Point_Position
 
 class TestPolygon:
     """Test cases for Polygon class."""
@@ -68,7 +69,43 @@ class TestPolygon:
         assert poly._v == v2
         assert poly._size == 2
         assert v1.next == v2
+        assert v1.prev == v2
+        assert v2.next == v1
         assert v2.prev == v1
+
+    def test_insert_two_points(self):
+        """Test inserting two vertices in sequence."""
+        poly = Polygon()
+        v1 = poly.insert(Vertex(1, 2))
+        v2 = poly.insert(Vertex(3, 4))
+
+        v = poly.v()
+        a = v
+        b = cast(Vertex, v).next
+
+        assert cast(Vertex, a).next is b
+        assert cast(Vertex, a).prev is b
+        assert cast(Vertex, b).next is a
+        assert cast(Vertex, b).prev is a
+
+    def test_polygon_insert_breaks_prev_pointer(self):
+        """Test that inserting vertices correctly maintains prev pointers."""
+        poly = Polygon()
+
+        poly.insert(Point(0, 0))   # first node
+        poly.insert(Point(2, 0))   # second node
+
+        v = poly.v()
+        a = v
+        b = cast(Vertex, v).next
+
+        # forward links
+        assert cast(Vertex, a).next is b
+        assert cast(Vertex, b).next is a
+
+        # 🔥 backward links (THIS WILL FAIL)
+        assert cast(Vertex, a).prev is b, f"a.prev is {cast(Vertex, a).prev}, expected {b}"
+        assert cast(Vertex, b).prev is a, f"b.prev is {cast(Vertex, b).prev}, expected {a}"
 
     def test_remove(self):
         """Test removing vertices."""
@@ -147,25 +184,6 @@ class TestPolygon:
         result = polygon.pointInPolygon(point_outside)
         assert result == False
 
-    def test_point_in_polygon_complex(self):
-        """Test point in polygon with a more complex polygon."""
-        v1 = Vertex(0, 0)
-        v2 = Vertex(2, 0)
-        v3 = Vertex(2, 2)
-        v4 = Vertex(0, 2)
-        polygon = Polygon(v1)
-        polygon.insert(v2)
-        polygon.insert(v3)
-        polygon.insert(v4)
-
-        point_inside = Point(1, 1)
-        result = polygon.pointInPolygon(point_inside)
-        assert result == True
-
-        point_outside = Point(3, 3)
-        result = polygon.pointInPolygon(point_outside)
-        assert result == False
-
     def test_star_polygonization(self):
         """Test starting polygonization."""
         v0 = Vertex(3.1, 0.8)
@@ -194,6 +212,23 @@ class TestPolygon:
         assert polygon.point() == v2.point()
         polygon.advance(Rotation.CCW)
         assert polygon.point() == v0.point()
+
+    def test_point_inside_polygon(self):
+        """Test point inside polygon."""
+        v1 = Vertex(0, 0)
+        v2 = Vertex(2, 0)
+        v3 = Vertex(2, 2)
+        v4 = Vertex(0, 2)
+        polygon = Polygon(v1)
+        polygon.insert(v4)
+        polygon.insert(v3)
+        polygon.insert(v2)
+
+        point_inside = Point(1, 1)
+        assert polygon.pointInPolygon(point_inside) == True
+
+        point_outside = Point(3, 3)
+        assert polygon.pointInPolygon(point_outside) == False
 
 # ---------------------------------------------------------------------------
 # Import leastVertex (added alongside the existing geom_utils functions)
@@ -511,3 +546,111 @@ class TestLeastVertexProperties:
         result1 = poly1.leastVertex()
         result2 = poly2.leastVertex()
         assert (result1.x, result1.y) == (result2.x, result2.y)
+
+class TestSupportingLine:
+    """Unit tests for supporting line functionality."""
+    
+    def test_supporting_line_empty_polygon(self):
+        """Test supporting line on an empty polygon."""
+        poly = Polygon()
+        poly.supporting_line(Point(1, 1), Point_Position.LEFT)
+        assert poly._v is None  # No vertices, so _v should remain None
+
+    def test_supporting_line_single_vertex(self):
+        """Test supporting line on a single-vertex polygon."""
+        v = Vertex(2, 3)
+        poly = Polygon(v)
+        poly.supporting_line(Point(1, 1), Point_Position.LEFT)
+        assert poly._v is not None  # No vertices, so _v should remain None
+        assert poly.v() == Point(2, 3)
+
+    def test_supporting_line_simple_polygon(self):
+        """Test supporting line on a simple triangle."""
+        v1 = Vertex(0, 0)
+        v2 = Vertex(4, 0)
+        v3 = Vertex(2, 3)
+        poly = Polygon(v1)
+        poly.insert(v2)
+        poly.insert(v3)
+
+        # Test point to the left of edge (v1, v2)
+        poly.supporting_line(Point(2, -1), Point_Position.LEFT)
+        assert poly.v() == Point(0, 0)  # Should be v1
+
+        # Test point to the right of edge (v1, v2)
+        poly.supporting_line(Point(2, -1), Point_Position.RIGHT)
+        assert poly.v() == Point(4, 0)  # Should be v2
+
+class TestInsertionHull:
+    """Unit tests for insertion hull functionality."""
+
+    def test_insertion_hull_basic(self):
+        """Test insertion hull with a simple set of points."""
+        poly = Polygon()
+
+        points = [
+            Point(0, 0),
+            Point(2, 0),
+            Point(2, 2),
+            Point(0, 2),
+        ]
+
+        poly.insertionHull(points)
+
+        assert poly.size() == 4
+
+    def test_insertion_hull_with_inner_point(self):
+        """Test insertion hull with a point inside the polygon."""
+        poly = Polygon()
+
+        points = [
+            Point(0, 0),
+            Point(0, 2),
+            Point(2, 2),
+            Point(2, 0),
+            Point(1, 1),  # inside
+        ]
+
+        poly.insertionHull(points)
+
+        # hull should still be square (4 points)
+        assert poly.size() == 4
+
+    def test_insertion_hull_first_iteration_structure(self):
+        """Test the structure of the polygon after the first iteration of insertion hull."""
+
+        poly = Polygon()
+
+        points = [
+            Point(0, 0),
+            Point(2, 0),
+            Point(2, 2),  # not reached yet
+        ]
+
+        # Manually simulate first iteration
+        poly.insert(points[0])   # (0,0)
+
+        p = points[1]            # (2,0)
+
+        # mimic insertionHull logic (only first iteration)
+        assert not poly.pointInPolygon(p)
+
+        poly.supporting_line(p, Point_Position.LEFT)  # LEFT (use your enum)
+        l = poly.v()
+        poly.supporting_line(p, Point_Position.RIGHT)  # RIGHT
+
+        poly.split(cast(Vertex, l))
+        poly.insert(p)
+
+        # 🔥 Now check structure
+        v = poly.v()
+        a = v
+        b = cast(Vertex, v).next
+
+        # forward
+        assert cast(Vertex, a).next is b
+        assert cast(Vertex, b).next is a
+
+        # 🔥 backward (this should FAIL in your case)
+        assert cast(Vertex, a).prev is b, f"a.prev broken: {cast(Vertex, a).prev}"
+        assert cast(Vertex, b).prev is a, f"b.prev broken: {cast(Vertex, b).prev}"

@@ -24,7 +24,7 @@ class Node:
         Returns:
             The inserted node, or self if insertion failed.
         """
-        if not node or node is self:
+        if node is None or node is self:
             return self
 
         node.prev = self
@@ -62,12 +62,14 @@ class Node:
 
         Complexity: O(1).
         """
-        if not node or node == self:
+        if node is None or node is self:
             return
 
         an = self.next
         bn = node.next
+
         self.next = bn
         bn.prev = self
+
         node.next = an
         an.prev = node

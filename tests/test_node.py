@@ -49,6 +49,21 @@ class TestNode:
         assert n4.next == n3
         assert n3.prev == n4
 
+    def test_insert_two_nodes(self):
+        """Test inserting two nodes in sequence."""
+        a = Node()
+        b = Node()
+
+        a.insert(b)
+
+        # forward links
+        assert a.next is b
+        assert b.next is a
+
+        # backward links
+        assert a.prev is b
+        assert b.prev is a
+
     def test_remove(self, sample_nodes):
         """Test remove method."""
         n1, n2, n3 = sample_nodes
@@ -72,3 +87,27 @@ class TestNode:
         assert n3.prev == n2
         assert n5.next == n1
         assert n2.prev == n3
+
+    def test_splice_invariant(self):
+        """Test that splice maintains list invariants."""
+
+        a = Node()
+        b = Node()
+        c = Node()
+        d = Node()
+
+        a.insert(b)
+        b.insert(c)
+        c.insert(d)
+
+        # splice c after a
+        a.splice(c)
+
+        # invariant check
+        start = a
+        current = start
+
+        for _ in range(4):
+            assert current.next.prev is current
+            assert current.prev.next is current
+            current = current.next
